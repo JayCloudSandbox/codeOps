@@ -1,0 +1,86 @@
+import sys,os
+import openpyxl
+import shotgun_api3
+
+class PeopleGridCreate():
+    def __init__(self,serverPth,scNm,tcNm,prjId,asset,taskTemplate,assetType,shDesc):
+        self.serverPath = serverPth
+        self.login = scNm
+        self.passwd = tcNm
+        self.projectId = prjId
+        self.assetCode = asset
+        self.taskTemplate = taskTemplate
+        self.assetType = assetType
+        self.shotDescription = shDesc
+
+    def grabData(self):
+        wb = openpyxl.load_workbook('C://Users//Tracker.xlsx')
+        sheet = wb.active
+        i=0
+        FirstName = []
+        LastName = []
+        EmailAddress = []
+        Prj = []
+        # B=firstname
+        # C=lastname
+        # D=email
+        # E=location
+        # F=ip
+        # G=project
+        # H=timezone
+        # J=server
+        for colA in sheet['B']:
+            if not colA.value == "First Name":
+                if not colA.value:
+                    continue
+                else:
+                    FirstName.append(colA.value)
+                    i+=1
+        for colB in sheet['C']:
+            if not colB.value == "Last Name":
+                if not colB.value:
+                    continue
+                else:
+                    LastName.append(colB.value)
+        for colC in sheet['D']:
+            if not colC.value == "Email Address":
+                if not colC.value:
+                    continue
+                else:
+                    EmailAddress.append(colC.value)
+        for colD in sheet['G']:
+            if not colD.value == "Project":
+                if not colD.value:
+                    continue
+                else:
+                    Prj.append(colD.value)
+                    
+ 
+        return i,FirstName,LastName,EmailAddress,Prj
+        
+    def runAssetCreate(self):
+        SERVER_PATH = self.serverPath
+        LOGIN  = self.login
+        PASSWORD = self.passwd
+        studentCount,firstName,lastName,emailAddress = self.grabData()
+        prjId = int(self.projectId)
+        tskTemplt = self.taskTemplate
+        desc = self.shotDescription
+        asst = self.assetCode
+        assType = self.assetType
+        sg = shotgun_api3.Shotgun(SERVER_PATH,LOGIN,PASSWORD)
+
+        for count in range(int(studentCount)):
+            print("craeted {}-{} ".format(count,firstName[count]))
+            data = {
+                "firstname": firstName,
+                "lastname": lastName,
+                "email": emailAddress,
+                "language": 'EnglishFrench',
+            }
+            sg.create('HumanUser', data)
+
+        print("\ncompleted creating uesr")
+
+if __name__ == '__main__':
+    PeopleGridCreate('https:some.shotgrid.autodesk.com/','user@gmail.com','qRJ=&g7yq|4@J~41~L|~Cg/&YdU`\q/{',716,"charRobot","Film VFX - Character Asset","Character","asset automate frol xls").runAssetCreate()
